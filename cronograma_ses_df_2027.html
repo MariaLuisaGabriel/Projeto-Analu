@@ -183,7 +183,7 @@
         const LIMIT_ITEMS = 24;
         const LIMIT_TEXT = 2000;
 
-        let state = { weeks: [] };
+        let state = { weeks: [], startDate: null };
         let focusAfterRender = null;
 
         const STORAGE_KEY = 'cronograma_sesdf_state_v2';
@@ -234,10 +234,20 @@
             };
         }
 
+        // Aula registrada = item com texto, sempre marcado como assistido,
+        // com data opcional ("YYYY-MM-DD"). Itens sem texto são descartados.
+        function normalizeClass(item) {
+            const base = normalizeItem(item);
+            if (!base.text.trim()) return null;
+            const out = { text: base.text, done: true };
+            if (isPlainObject(item) && isValidIsoDate(item.date)) out.date = item.date;
+            return out;
+        }
+
         function normalizeWeek(week) {
             const source = isPlainObject(week) ? week : {};
             const revisions = Array.isArray(source.revisions) ? source.revisions.slice(0, LIMIT_ITEMS).map(normalizeItem) : [];
-            const classes = Array.isArray(source.classes) ? source.classes.slice(0, LIMIT_ITEMS).map(normalizeItem) : [];
+            const classes = Array.isArray(source.classes) ? source.classes.map(normalizeClass).filter(Boolean).slice(0, LIMIT_ITEMS) : [];
             const incoming = Array.isArray(source.shifts) ? source.shifts : [];
             return {
                 revisions: revisions,
@@ -270,13 +280,32 @@
             });
         }
 
+        function pad2(n) {
+            return String(n).padStart(2, '0');
+        }
+
+        function toIsoDate(date) {
+            return date.getFullYear() + '-' + pad2(date.getMonth() + 1) + '-' + pad2(date.getDate());
+        }
+
+        function parseIsoDate(value) {
+            const parts = value.split('-').map(Number);
+            return new Date(parts[0], parts[1] - 1, parts[2]);
+        }
+
+        function isValidIsoDate(value) {
+            if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+            return toIsoDate(parseIsoDate(value)) === value;
+        }
+
         function normalizeState(loaded) {
+            const startDate = isPlainObject(loaded) && isValidIsoDate(loaded.startDate) ? loaded.startDate : null;
             if (isPlainObject(loaded) && Array.isArray(loaded.weeks)) {
-                return { weeks: loaded.weeks.slice(0, LIMIT_WEEKS).map(normalizeWeek) };
+                return { weeks: loaded.weeks.slice(0, LIMIT_WEEKS).map(normalizeWeek), startDate };
             }
             const weeks = buildDefaultWeeks();
             applyLegacyProgress(weeks, readLegacyMaps(loaded));
-            return { weeks };
+            return { weeks: weeks.map(normalizeWeek), startDate };
         }
 
         const SERVER_ORIGIN = 'http://127.0.0.1:8765';
@@ -310,7 +339,9 @@
         }
 
         function snapshot() {
-            return { weeks: state.weeks };
+            const snap = { weeks: state.weeks };
+            if (state.startDate) snap.startDate = state.startDate;
+            return snap;
         }
 
         function readLocalRaw() {
