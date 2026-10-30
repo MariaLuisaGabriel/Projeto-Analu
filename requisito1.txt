@@ -1,0 +1,23 @@
+Primeiro requisito do projeto da nalu
+
+O usuário possui a seguinte estrutura de atividades para revisar semanalmente:
+- Possui 4 tópicos principais de estudo: Clínica, Cirurgia, Preventivo e Pediatria.
+- Cada tópico possui subtópicos internos, que serão escritos pelo próprio usuário (seja por um arquivo .txt ou manualmente no sistema), e devem ser organizados harmoniosamente para revisão.
+- Proposta de organização harmoniosa:
+    - Juntar um subtópico de cada tópico principal para estudar por semana, totalizando 4 revisões a fazer por semana.
+    - Caso cada tópico principal tenha uma quantidade diferente de subtópicos, preencha as semanas que possuem revisões faltantes com os subtópicos que sobraram. (nesse caso não tem problema ter mais de um subtópico de mesmo tópico principal)
+- A submissão dessas informações pode ser feita por arquivo .txt, ou escritas manualmente por um modal, e a partir dos subtópicos escritos por tópico principal, o sistema deve organizar da forma antes descrita. 
+
+- Precisamos de uma nova funcionalidade para automatizar a submissão de revisões de cada semana:
+    1. Adicione um botão, escrito "Adicionar Atividades":
+        1.1 Localização: No Header, abaixo do campo que retrata o progresso das revisões.
+        1.2 Estilo: Branco, com letra da mesma cor que o fundo do header.
+    2. Quando o botão for clicado, ele deve abrir um modal, central à tela, que possui as seguintes características:
+        2.1 Espaço para duas opções de submissão de atividades:
+            2.1.1 Enviar um arquivo .txt, de estrutura:
+            "Clínica: ..., ..., ..." onde cada reticências é um subtópico de clínica. Haverá uma linha para cada tópico prinicpal, seguindo esse modelo
+            2.1.2 Escrever as atividades manualmente no sistema:
+                - Deve haver um card para cada tópico principal, e dentro de cada card deve ter um campo de texto. No momento que o usuário aperta "Enter", o subtópico é adicionado e aparece outro campo de texto abaixo do subtópico criado
+        2.2 Após a submissão das atividades, deve haver um botão de "Salvar" ou "Cancelar" no modal:
+            2.2.1 "Salvar": Cria vários cards de semana, seguindo a sequência de numenração pré-existente no sistema, e ordena harmoniosamente os subtópicos de cada tópico principal
+            2.2.2 "Cancelar": Fecha o modal.
