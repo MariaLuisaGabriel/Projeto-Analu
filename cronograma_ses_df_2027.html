@@ -69,10 +69,20 @@
             transform: scale(1);
         }
         
-        .topic-text { transition: color 0.2s ease, text-decoration 0.2s ease; }
-        .checkbox-custom:checked + .topic-text {
+        .checkbox-custom:checked + .item-input {
             color: #94a3b8;
             text-decoration: line-through;
+        }
+        textarea.item-input {
+            resize: none;
+            overflow: hidden;
+            line-height: 1.35;
+            min-height: 1.75rem;
+            border-style: solid;
+            border-top-width: 0;
+            border-right-width: 0;
+            border-left-width: 0;
+            border-bottom-width: 1px;
         }
 
         .day-btn {
@@ -108,7 +118,7 @@
                         <span class="text-sm font-medium text-white flex items-center gap-2">
                             <i class="fas fa-tasks"></i> Progresso das Revisões
                         </span>
-                        <span id="progress-text" class="text-sm font-bold text-white">0 / 99</span>
+                        <span id="progress-text" class="text-sm font-bold text-white">0 / 0</span>
                     </div>
                     <div class="w-full bg-black/20 rounded-full h-2.5 overflow-hidden">
                         <div id="progress-bar" class="bg-medical-100 h-2.5 rounded-full transition-all duration-500 ease-out relative" style="width: 0%">
@@ -167,19 +177,14 @@
             { label: 'D', name: 'Domingo' }
         ];
 
-        // Group topics into weeks (4 per week)
-        const weeks = [];
-        for (let i = 0; i < topics.length; i += 4) {
-            weeks.push(topics.slice(i, i + 4));
-        }
+        // O arquivo guarda as semanas. Esta lista só entra na primeira vez,
+        // quando dados/cronograma.json ainda não tem "weeks".
+        const LIMIT_WEEKS = 80;
+        const LIMIT_ITEMS = 24;
+        const LIMIT_TEXT = 2000;
 
-        // State Management
-        let state = {
-            revisions: {}, // "weekIdx-topicIdx": boolean
-            classesText: {}, // "weekIdx-classIdx": string
-            classesDone: {}, // "weekIdx-classIdx": boolean
-            shifts: {} // "weekIdx-dayIdx": boolean
-        };
+        let state = { weeks: [] };
+        let focusAfterRender = null;
 
         const STORAGE_KEY = 'cronograma_sesdf_state_v2';
 
@@ -189,7 +194,90 @@
                 .replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
-        // Chaves "semana-indice" (semana começa em 0). O JSON guarda só o progresso.
+        function clampText(value) {
+            return String(value == null ? '' : value).replace(/[\r\n]+/g, ' ').slice(0, LIMIT_TEXT);
+        }
+
+        function blankItem() {
+            return { text: '', done: false };
+        }
+
+        function blankShifts() {
+            return [false, false, false, false, false, false, false];
+        }
+
+        function emptyWeek() {
+            return {
+                revisions: [blankItem(), blankItem(), blankItem(), blankItem()],
+                classes: [blankItem(), blankItem(), blankItem(), blankItem()],
+                shifts: blankShifts()
+            };
+        }
+
+        function buildDefaultWeeks() {
+            const weeks = [];
+            for (let i = 0; i < topics.length; i += 4) {
+                weeks.push({
+                    revisions: topics.slice(i, i + 4).map((text) => ({ text: text, done: false })),
+                    classes: [blankItem(), blankItem(), blankItem(), blankItem()],
+                    shifts: blankShifts()
+                });
+            }
+            return weeks;
+        }
+
+        function normalizeItem(item) {
+            const source = isPlainObject(item) ? item : {};
+            return {
+                text: clampText(typeof source.text === 'string' ? source.text : ''),
+                done: source.done === true
+            };
+        }
+
+        function normalizeWeek(week) {
+            const source = isPlainObject(week) ? week : {};
+            const revisions = Array.isArray(source.revisions) ? source.revisions.slice(0, LIMIT_ITEMS).map(normalizeItem) : [];
+            const classes = Array.isArray(source.classes) ? source.classes.slice(0, LIMIT_ITEMS).map(normalizeItem) : [];
+            const incoming = Array.isArray(source.shifts) ? source.shifts : [];
+            return {
+                revisions: revisions,
+                classes: classes,
+                shifts: [0, 1, 2, 3, 4, 5, 6].map((i) => incoming[i] === true)
+            };
+        }
+
+        function readLegacyMaps(source) {
+            const base = isPlainObject(source) ? source : {};
+            return {
+                revisions: isPlainObject(base.revisions) ? base.revisions : {},
+                classesText: isPlainObject(base.classesText) ? base.classesText : {},
+                classesDone: isPlainObject(base.classesDone) ? base.classesDone : {},
+                shifts: isPlainObject(base.shifts) ? base.shifts : {}
+            };
+        }
+
+        function applyLegacyProgress(weeks, legacy) {
+            weeks.forEach((week, weekIdx) => {
+                week.revisions.forEach((item, topicIdx) => {
+                    if (legacy.revisions[weekIdx + '-' + topicIdx] === true) item.done = true;
+                });
+                week.classes.forEach((item, classIdx) => {
+                    const key = weekIdx + '-' + classIdx;
+                    if (typeof legacy.classesText[key] === 'string') item.text = clampText(legacy.classesText[key]);
+                    if (legacy.classesDone[key] === true) item.done = true;
+                });
+                week.shifts = blankShifts().map((_, dayIdx) => legacy.shifts[weekIdx + '-' + dayIdx] === true);
+            });
+        }
+
+        function normalizeState(loaded) {
+            if (isPlainObject(loaded) && Array.isArray(loaded.weeks)) {
+                return { weeks: loaded.weeks.slice(0, LIMIT_WEEKS).map(normalizeWeek) };
+            }
+            const weeks = buildDefaultWeeks();
+            applyLegacyProgress(weeks, readLegacyMaps(loaded));
+            return { weeks };
+        }
 
         const SERVER_ORIGIN = 'http://127.0.0.1:8765';
         let serverReady = false;
@@ -205,43 +293,34 @@
             return !!value && typeof value === 'object' && !Array.isArray(value);
         }
 
-        function normalizeState(loaded) {
-            const source = isPlainObject(loaded) ? loaded : {};
-            return {
-                revisions: isPlainObject(source.revisions) ? source.revisions : {},
-                classesText: isPlainObject(source.classesText) ? source.classesText : {},
-                classesDone: isPlainObject(source.classesDone) ? source.classesDone : {},
-                shifts: isPlainObject(source.shifts) ? source.shifts : {}
-            };
+        function isLegacyBlank(raw) {
+            if (!isPlainObject(raw) || Array.isArray(raw.weeks)) return false;
+            return ['revisions', 'classesText', 'classesDone', 'shifts'].every((name) => {
+                const map = raw[name];
+                return !isPlainObject(map) || Object.keys(map).length === 0;
+            });
         }
 
-        function isBlankState(value) {
-            return ['revisions', 'classesText', 'classesDone', 'shifts']
-                .every((name) => Object.keys(value[name]).length === 0);
-        }
-
-        function hasProgress(value) {
-            return ['revisions', 'classesText', 'classesDone', 'shifts'].some((name) =>
-                Object.keys(value[name]).some((key) => value[name][key])
-            );
+        function legacyHasProgress(raw) {
+            if (!isPlainObject(raw) || Array.isArray(raw.weeks)) return false;
+            return ['revisions', 'classesText', 'classesDone', 'shifts'].some((name) => {
+                const map = raw[name];
+                return isPlainObject(map) && Object.keys(map).some((key) => map[key]);
+            });
         }
 
         function snapshot() {
-            return {
-                revisions: state.revisions || {},
-                classesText: state.classesText || {},
-                classesDone: state.classesDone || {},
-                shifts: state.shifts || {}
-            };
+            return { weeks: state.weeks };
         }
 
-        function readLocalState() {
+        function readLocalRaw() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (!saved) return null;
             try {
                 const parsed = JSON.parse(saved);
-                if (!parsed || typeof parsed !== 'object' || !('revisions' in parsed)) return null;
-                return normalizeState(parsed);
+                if (!isPlainObject(parsed)) return null;
+                if (!Array.isArray(parsed.weeks) && !('revisions' in parsed)) return null;
+                return parsed;
             } catch (e) {
                 console.error('Erro ao ler a cópia do navegador', e);
                 return null;
@@ -318,20 +397,22 @@
         window.addEventListener('pagehide', flushServerWrite);
 
         async function initPersistence() {
-            const local = readLocalState();
+            const localRaw = readLocalRaw();
             try {
                 const res = await fetchTimeout(apiUrl('/api/estado'), { cache: 'no-store' }, 2000);
                 if (res.status === 500) {
                     serverReady = false;
-                    if (local) state = local;
+                    state = localRaw ? normalizeState(localRaw) : normalizeState({});
                     setFileStatus('O arquivo dados/cronograma.json não pôde ser lido. O progresso desta tela está só neste navegador.', 'bg-red-400');
                 } else if (!res.ok) {
                     throw new Error('resposta ' + res.status);
                 } else {
-                    const remote = normalizeState(await res.json());
+                    const remoteRaw = await res.json();
                     serverReady = true;
-                    if (isBlankState(remote) && local && hasProgress(local)) {
-                        state = local;
+                    const remoteHasWeeks = isPlainObject(remoteRaw) && Array.isArray(remoteRaw.weeks);
+                    const localHasWeeks = isPlainObject(localRaw) && Array.isArray(localRaw.weeks);
+                    if (!remoteHasWeeks && isLegacyBlank(remoteRaw) && localRaw && (legacyHasProgress(localRaw) || localHasWeeks)) {
+                        state = normalizeState(localRaw);
                         persistLocal();
                         try {
                             await writeServerNow();
@@ -340,169 +421,335 @@
                             setFileStatus('Não consegui copiar o progresso para dados/cronograma.json. Ele continua neste navegador.', 'bg-red-400');
                         }
                     } else {
-                        state = remote;
+                        state = normalizeState(remoteRaw);
                         persistLocal();
-                        setFileStatus('Conectado a dados/cronograma.json', 'bg-green-400');
+                        if (!remoteHasWeeks) {
+                            try {
+                                await writeServerNow();
+                            } catch (err) {
+                                console.error(err);
+                                setFileStatus('Não consegui gravar a estrutura em dados/cronograma.json. Ela continua neste navegador.', 'bg-red-400');
+                            }
+                        } else {
+                            setFileStatus('Conectado a dados/cronograma.json', 'bg-green-400');
+                        }
                     }
                 }
             } catch (e) {
                 serverReady = false;
-                if (local) state = local;
+                state = localRaw ? normalizeState(localRaw) : normalizeState({});
                 setFileStatus('Abra pelo Iniciar.bat para salvar em arquivo. Por enquanto, só neste navegador.', 'bg-orange-300');
             }
             renderWeeks();
             updateProgressBar();
         }
 
-        // --- Render Engine ---
+        function temasLabel(count) {
+            return count === 1 ? '1 tema' : count + ' temas';
+        }
+
+        function shiftSummary(shifts) {
+            const names = [];
+            daysOfWeek.forEach((day, index) => {
+                if (shifts[index]) names.push(day.name);
+            });
+            return names.length ? names.join(' · ') : 'Nenhum dia marcado';
+        }
+
+        function paintShiftSummary(el, shifts) {
+            if (!el) return;
+            const any = shifts.some(Boolean);
+            el.textContent = shiftSummary(shifts);
+            el.classList.toggle('text-orange-600', any);
+            el.classList.toggle('font-medium', any);
+            el.classList.toggle('text-slate-400', !any);
+        }
+
+        function fitField(el) {
+            if (!el) return;
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
+        function blockEnter(event) {
+            if (event.key === 'Enter') event.preventDefault();
+        }
+
+        function sectionHeader(icon, iconColor, title, addFn, weekIdx) {
+            return `
+                <div class="flex items-center justify-between gap-2 mb-1">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                        <i class="fas ${icon} ${iconColor}"></i> ${title}
+                    </h3>
+                    <button type="button" onclick="${addFn}(${weekIdx})" class="border-0 bg-transparent cursor-pointer text-[11px] font-semibold text-medical-600 hover:text-medical-700 flex items-center gap-1 shrink-0">
+                        <i class="fas fa-plus"></i> Adicionar
+                    </button>
+                </div>
+            `;
+        }
+
+        function rowHtml(item, weekIdx, idx, kind) {
+            const isRev = kind === 'rev';
+            const placeholder = isRev ? 'Nova revisão...' : ('Aula ' + (idx + 1) + '...');
+            const onToggle = isRev ? 'toggleRevision' : 'toggleClassDone';
+            const onText = isRev ? 'updateRevisionText' : 'updateClassText';
+            const onRemove = isRev ? 'removeRevision' : 'removeClass';
+            const dataAttr = isRev ? 'data-rev' : 'data-class';
+            const removeTitle = isRev ? 'Remover revisão' : 'Remover aula';
+            const checkLabel = isRev ? 'Marcar revisão como feita' : 'Marcar aula como feita';
+            const border = isRev ? 'border-transparent' : 'border-slate-200';
+            const weight = isRev ? 'font-medium' : '';
+            return `
+                <div class="flex items-start gap-2 mt-2 min-w-0">
+                    <input type="checkbox" ${item.done ? 'checked' : ''} onchange="${onToggle}(${weekIdx}, ${idx}, this.checked)" class="checkbox-custom shrink-0 mt-1" aria-label="${checkLabel}">
+                    <textarea ${dataAttr}="${weekIdx}-${idx}" maxlength="${LIMIT_TEXT}" rows="1" autocomplete="off" placeholder="${placeholder}" oninput="${onText}(${weekIdx}, ${idx}, this.value); fitField(this)" onkeydown="blockEnter(event)" class="item-input flex-1 min-w-0 text-sm ${weight} bg-transparent border-0 border-b ${border} focus:border-medical-500 focus:outline-none py-1 px-1 text-slate-700 placeholder:text-slate-300">${escapeHtml(item.text)}</textarea>
+                    <button type="button" title="${removeTitle}" aria-label="${removeTitle}" onclick="${onRemove}(${weekIdx}, ${idx})" class="border-0 bg-transparent cursor-pointer w-7 h-7 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        function listHtml(items, weekIdx, kind) {
+            if (!items.length) {
+                const label = kind === 'rev' ? 'Nenhuma revisão nesta semana.' : 'Nenhuma aula nesta semana.';
+                return `<p class="text-xs text-slate-400 mt-2">${label}</p>`;
+            }
+            return items.map((item, idx) => rowHtml(item, weekIdx, idx, kind)).join('');
+        }
+
+        function shiftsHtml(week, weekIdx) {
+            return daysOfWeek.map((day, dayIdx) => {
+                const active = week.shifts[dayIdx];
+                const verb = active ? 'Desmarcar' : 'Marcar';
+                return `
+                    <button type="button" onclick="toggleShift(this, ${weekIdx}, ${dayIdx})" aria-pressed="${active ? 'true' : 'false'}" title="${verb} ${day.name}" class="day-btn ${active ? 'active' : ''} w-7 h-7 rounded-full border border-slate-200 text-xs text-slate-400 bg-white flex items-center justify-center hover:border-orange-300 hover:text-orange-500 focus:outline-none">
+                        ${day.label}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderWeekCard(week, weekIdx) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow min-w-0';
+            card.setAttribute('data-week-card', String(weekIdx));
+            const summaryClass = week.shifts.some(Boolean) ? 'text-orange-600 font-medium' : 'text-slate-400';
+            card.innerHTML = `
+                <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex justify-between items-center gap-2">
+                    <h2 class="font-bold text-slate-800 text-lg">Semana ${weekIdx + 1}</h2>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-medical-600 bg-medical-50 px-2 py-1 rounded-md border border-medical-100">
+                            ${temasLabel(week.revisions.length)}
+                        </span>
+                        <button type="button" onclick="removeWeek(${weekIdx})" title="Remover semana" aria-label="Remover semana ${weekIdx + 1}" class="border-0 bg-transparent cursor-pointer text-[11px] font-semibold text-slate-400 hover:text-red-500 flex items-center gap-1">
+                            <i class="fas fa-trash-alt"></i> Remover
+                        </button>
+                    </div>
+                </div>
+                <div class="p-5 flex-1 flex flex-col gap-5">
+                    <div>
+                        ${sectionHeader('fa-sync-alt', 'text-medical-500', 'Revisões da Semana', 'addRevision', weekIdx)}
+                        <div class="flex flex-col">${listHtml(week.revisions, weekIdx, 'rev')}</div>
+                    </div>
+                    <div>
+                        ${sectionHeader('fa-book-open', 'text-blue-500', 'Aulas Novas', 'addClass', weekIdx)}
+                        <div class="flex flex-col">${listHtml(week.classes, weekIdx, 'class')}</div>
+                    </div>
+                    <div class="mt-auto pt-4 border-t border-slate-100">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i class="fas fa-hospital text-orange-500"></i> Plantões / Dias Pesados
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mb-2">Clique no dia para marcar ou desmarcar.</p>
+                        <div class="flex justify-between mt-2 gap-1">
+                            ${shiftsHtml(week, weekIdx)}
+                        </div>
+                        <p data-shift-summary="${weekIdx}" class="text-xs mt-2 leading-snug ${summaryClass}">${escapeHtml(shiftSummary(week.shifts))}</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 px-5 py-3 border-t border-slate-100 text-[11px] text-slate-400 text-center flex items-center justify-center gap-2">
+                    <i class="fas fa-lightbulb text-yellow-400"></i>
+                    <span>Dica: Passe o olho no Notion e zere os cloze deletions no Anki.</span>
+                </div>
+            `;
+            return card;
+        }
+
+        function renderAddWeekCard() {
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'bg-white/70 border-2 border-dashed border-slate-300 rounded-2xl min-h-[16rem] p-6 font-sans flex flex-col items-center justify-center gap-3 text-slate-500 hover:border-medical-500 hover:text-medical-700 hover:bg-white transition-colors';
+            card.setAttribute('data-add-week', 'true');
+            card.onclick = addWeek;
+            card.innerHTML = `
+                <span class="w-12 h-12 rounded-full bg-medical-50 text-medical-600 flex items-center justify-center">
+                    <i class="fas fa-plus text-lg"></i>
+                </span>
+                <span class="font-semibold">Adicionar semana</span>
+            `;
+            return card;
+        }
+
+        function restoreFocusOrScroll(scrollY) {
+            if (!focusAfterRender) {
+                window.scrollTo(0, scrollY);
+                return;
+            }
+            const target = focusAfterRender;
+            focusAfterRender = null;
+            const attr = target.kind === 'rev' ? 'data-rev' : 'data-class';
+            const el = document.querySelector('[' + attr + '="' + target.week + '-' + target.index + '"]');
+            if (!el) return;
+            el.focus();
+            const card = el.closest('[data-week-card]');
+            if (card) card.scrollIntoView({ block: 'nearest' });
+        }
 
         function renderWeeks() {
             const container = document.getElementById('weeks-container');
+            const scrollY = window.scrollY;
             container.innerHTML = '';
-
-            weeks.forEach((weekTopics, weekIdx) => {
-                // Revisions HTML
-                const revisionsHtml = weekTopics.map((topic, topicIdx) => {
-                    const key = `${weekIdx}-${topicIdx}`;
-                    const isChecked = state.revisions[key] ? 'checked' : '';
-                    return `
-                        <label class="flex items-start cursor-pointer group mt-2">
-                            <input type="checkbox" ${isChecked} onchange="toggleRevision(${weekIdx}, ${topicIdx}, this.checked)" class="checkbox-custom mt-0.5 shrink-0">
-                            <span class="ml-3 text-sm font-medium text-slate-700 topic-text break-words leading-tight pt-0.5">${topic}</span>
-                        </label>
-                    `;
-                }).join('');
-
-                // New Classes HTML (Always 4 inputs)
-                let classesHtml = '';
-                for (let i = 0; i < 4; i++) {
-                    const key = `${weekIdx}-${i}`;
-                    const text = state.classesText[key] || '';
-                    const isChecked = state.classesDone[key] ? 'checked' : '';
-                    classesHtml += `
-                        <div class="flex items-center gap-2 mt-2">
-                            <input type="checkbox" ${isChecked} onchange="toggleClassDone(${weekIdx}, ${i}, this.checked)" class="checkbox-custom shrink-0">
-                            <input type="text" placeholder="Aula ${i+1}..." value="${escapeHtml(text)}" oninput="updateClassText(${weekIdx}, ${i}, this.value)" onchange="updateClassText(${weekIdx}, ${i}, this.value)" class="flex-1 text-sm bg-transparent border-b border-slate-200 focus:border-medical-500 focus:outline-none py-1 px-1 text-slate-700 transition-colors placeholder:text-slate-300">
-                        </div>
-                    `;
-                }
-
-                // Shifts HTML
-                const shiftsHtml = daysOfWeek.map((day, dayIdx) => {
-                    const key = `${weekIdx}-${dayIdx}`;
-                    const isActive = state.shifts[key] ? 'active' : '';
-                    return `
-                        <button onclick="toggleShift(this, ${weekIdx}, ${dayIdx})" title="Marcar plantão na ${day.name}" class="day-btn ${isActive} w-7 h-7 rounded-full border border-slate-200 text-xs text-slate-400 bg-white flex items-center justify-center hover:border-orange-300 hover:text-orange-500 focus:outline-none">
-                            ${day.label}
-                        </button>
-                    `;
-                }).join('');
-
-                // Week Card Assembly
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow";
-                card.innerHTML = `
-                    <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex justify-between items-center">
-                        <h2 class="font-bold text-slate-800 text-lg">Semana ${weekIdx + 1}</h2>
-                        <span class="text-xs font-semibold text-medical-600 bg-medical-50 px-2 py-1 rounded-md border border-medical-100">
-                            ${weekTopics.length} Temas
-                        </span>
-                    </div>
-                    
-                    <div class="p-5 flex-1 flex flex-col gap-5">
-                        <!-- Revisões -->
-                        <div>
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fas fa-sync-alt text-medical-500"></i> Revisões da Semana</h3>
-                            <div class="flex flex-col gap-1">
-                                ${revisionsHtml}
-                            </div>
-                        </div>
-
-                        <!-- Aulas Novas -->
-                        <div>
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fas fa-book-open text-blue-500"></i> Aulas Novas (Meta: 4)</h3>
-                            <div class="flex flex-col gap-1">
-                                ${classesHtml}
-                            </div>
-                        </div>
-
-                        <!-- Plantões -->
-                        <div class="mt-auto pt-4 border-t border-slate-100">
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fas fa-hospital text-orange-500"></i> Plantões / Dias Pesados</h3>
-                            <div class="flex justify-between mt-2 gap-1">
-                                ${shiftsHtml}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 px-5 py-3 border-t border-slate-100 text-[11px] text-slate-400 text-center flex items-center justify-center gap-2">
-                        <i class="fas fa-lightbulb text-yellow-400"></i>
-                        <span>Dica: Passe o olho no Notion e zere os cloze deletions no Anki.</span>
-                    </div>
-                `;
-                
+            state.weeks.forEach((week, weekIdx) => {
+                const card = renderWeekCard(week, weekIdx);
                 container.appendChild(card);
+                card.querySelectorAll('textarea').forEach(fitField);
             });
+            container.appendChild(renderAddWeekCard());
+            restoreFocusOrScroll(scrollY);
+            updateProgressBar();
         }
 
-        // --- Interaction Handlers ---
+        function addRevision(weekIdx) {
+            const week = state.weeks[weekIdx];
+            if (!week) return;
+            if (week.revisions.length >= LIMIT_ITEMS) {
+                alert('Esta semana já tem o máximo de ' + LIMIT_ITEMS + ' revisões.');
+                return;
+            }
+            week.revisions.push(blankItem());
+            focusAfterRender = { week: weekIdx, kind: 'rev', index: week.revisions.length - 1 };
+            renderWeeks();
+            saveState();
+        }
 
-        function toggleRevision(weekIdx, topicIdx, checked) {
-            const key = `${weekIdx}-${topicIdx}`;
-            state.revisions[key] = checked;
+        function addClass(weekIdx) {
+            const week = state.weeks[weekIdx];
+            if (!week) return;
+            if (week.classes.length >= LIMIT_ITEMS) {
+                alert('Esta semana já tem o máximo de ' + LIMIT_ITEMS + ' aulas.');
+                return;
+            }
+            week.classes.push(blankItem());
+            focusAfterRender = { week: weekIdx, kind: 'class', index: week.classes.length - 1 };
+            renderWeeks();
+            saveState();
+        }
+
+        function itemHasContent(item) {
+            return !!(item && (String(item.text || '').trim() || item.done));
+        }
+
+        function removeRevision(weekIdx, revIdx) {
+            const week = state.weeks[weekIdx];
+            if (!week || !week.revisions[revIdx]) return;
+            if (itemHasContent(week.revisions[revIdx]) && !window.confirm('Remover esta revisão?')) return;
+            week.revisions.splice(revIdx, 1);
+            renderWeeks();
+            saveState();
+        }
+
+        function removeClass(weekIdx, classIdx) {
+            const week = state.weeks[weekIdx];
+            if (!week || !week.classes[classIdx]) return;
+            if (itemHasContent(week.classes[classIdx]) && !window.confirm('Remover esta aula?')) return;
+            week.classes.splice(classIdx, 1);
+            renderWeeks();
+            saveState();
+        }
+
+        function removeWeek(weekIdx) {
+            if (!state.weeks[weekIdx]) return;
+            const message = 'Remover a semana ' + (weekIdx + 1) + '? O conteúdo dela será apagado e as semanas seguintes serão renumeradas.';
+            if (!window.confirm(message)) return;
+            state.weeks.splice(weekIdx, 1);
+            renderWeeks();
+            saveState();
+        }
+
+        function addWeek() {
+            if (state.weeks.length >= LIMIT_WEEKS) {
+                alert('O máximo é ' + LIMIT_WEEKS + ' semanas.');
+                return;
+            }
+            state.weeks.push(emptyWeek());
+            focusAfterRender = { week: state.weeks.length - 1, kind: 'rev', index: 0 };
+            renderWeeks();
+            saveState();
+        }
+
+        function updateRevisionText(weekIdx, revIdx, text) {
+            const item = state.weeks[weekIdx] && state.weeks[weekIdx].revisions[revIdx];
+            if (!item) return;
+            item.text = clampText(text);
             saveState();
         }
 
         function updateClassText(weekIdx, classIdx, text) {
-            const key = `${weekIdx}-${classIdx}`;
-            state.classesText[key] = text;
+            const item = state.weeks[weekIdx] && state.weeks[weekIdx].classes[classIdx];
+            if (!item) return;
+            item.text = clampText(text);
+            saveState();
+        }
+
+        function toggleRevision(weekIdx, revIdx, checked) {
+            const item = state.weeks[weekIdx] && state.weeks[weekIdx].revisions[revIdx];
+            if (!item) return;
+            item.done = !!checked;
             saveState();
         }
 
         function toggleClassDone(weekIdx, classIdx, checked) {
-            const key = `${weekIdx}-${classIdx}`;
-            state.classesDone[key] = checked;
+            const item = state.weeks[weekIdx] && state.weeks[weekIdx].classes[classIdx];
+            if (!item) return;
+            item.done = !!checked;
             saveState();
         }
 
         function toggleShift(btn, weekIdx, dayIdx) {
-            const key = `${weekIdx}-${dayIdx}`;
-            state.shifts[key] = !state.shifts[key];
-            
-            if (state.shifts[key]) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            const week = state.weeks[weekIdx];
+            if (!week || dayIdx < 0 || dayIdx > 6) return;
+            week.shifts[dayIdx] = !week.shifts[dayIdx];
+            const on = week.shifts[dayIdx];
+            btn.classList.toggle('active', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            btn.title = (on ? 'Desmarcar ' : 'Marcar ') + daysOfWeek[dayIdx].name;
+            paintShiftSummary(document.querySelector('[data-shift-summary="' + weekIdx + '"]'), week.shifts);
             saveState();
         }
 
         function updateProgressBar() {
-            const total = topics.length;
+            let total = 0;
             let completed = 0;
-            
-            // Count checked revisions
-            for (const key in state.revisions) {
-                if (state.revisions[key]) completed++;
-            }
-
-            const percentage = (completed / total) * 100;
-            
-            document.getElementById('progress-text').innerText = `${completed} / ${total}`;
-            document.getElementById('progress-bar').style.width = `${percentage}%`;
-            
-            // Add a little glow when 100%
-            if (completed === total) {
-                document.getElementById('progress-bar').classList.add('bg-green-400', 'shadow-[0_0_10px_#4ade80]');
-                document.getElementById('progress-bar').classList.remove('bg-medical-100');
+            state.weeks.forEach((week) => {
+                week.revisions.forEach((item) => {
+                    total += 1;
+                    if (item.done) completed += 1;
+                });
+            });
+            const percentage = total === 0 ? 0 : (completed / total) * 100;
+            document.getElementById('progress-text').innerText = completed + ' / ' + total;
+            const bar = document.getElementById('progress-bar');
+            bar.style.width = percentage + '%';
+            if (total > 0 && completed === total) {
+                bar.classList.add('bg-green-400', 'shadow-[0_0_10px_#4ade80]');
+                bar.classList.remove('bg-medical-100');
             } else {
-                document.getElementById('progress-bar').classList.remove('bg-green-400', 'shadow-[0_0_10px_#4ade80]');
-                document.getElementById('progress-bar').classList.add('bg-medical-100');
+                bar.classList.remove('bg-green-400', 'shadow-[0_0_10px_#4ade80]');
+                bar.classList.add('bg-medical-100');
             }
         }
 
-        // --- Init ---
-        navigator.storage?.persist?.();   // pede ao navegador para não descartar a cópia local
+        navigator.storage?.persist?.();
         initPersistence();
 
     </script>

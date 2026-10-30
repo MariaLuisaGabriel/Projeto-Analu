@@ -98,6 +98,67 @@ function Assert-Map {
     }
 }
 
+function Test-IsList {
+    param($Value)
+    return ($null -ne $Value) -and ($Value -is [System.Collections.IList]) -and -not ($Value -is [string])
+}
+
+function Test-ItemList {
+    param($List, [string]$Label, [int]$Max)
+    if (-not (Test-IsList $List)) {
+        throw "$Label precisa ser uma lista."
+    }
+    if ($List.Count -gt $Max) {
+        throw "$Label tem itens demais."
+    }
+    foreach ($item in @($List)) {
+        if ($null -eq $item -or -not ($item -is [System.Collections.IDictionary])) {
+            throw "Um item de $Label está inválido."
+        }
+        if (-not $item.ContainsKey('text') -or $item['text'] -isnot [string]) {
+            throw "O texto de $Label está inválido."
+        }
+        if ($item['text'].Length -gt 2000) {
+            throw "O texto de $Label está longo demais."
+        }
+        if (-not $item.ContainsKey('done') -or $item['done'] -isnot [bool]) {
+            throw "A marcação de $Label está inválida."
+        }
+    }
+}
+
+function Test-WeeksFormat {
+    param($Raw)
+    $weeks = $Raw['weeks']
+    if (-not (Test-IsList $weeks)) {
+        throw 'As semanas precisam ser uma lista.'
+    }
+    if ($weeks.Count -gt 80) {
+        throw 'Há semanas demais.'
+    }
+    foreach ($week in @($weeks)) {
+        if ($null -eq $week -or -not ($week -is [System.Collections.IDictionary])) {
+            throw 'Uma semana está inválida.'
+        }
+        foreach ($name in @('revisions', 'classes', 'shifts')) {
+            if (-not $week.ContainsKey($name)) {
+                throw "Falta o campo $name em uma semana."
+            }
+        }
+        Test-ItemList $week['revisions'] 'revisões' 24
+        Test-ItemList $week['classes'] 'aulas' 24
+        $shifts = $week['shifts']
+        if (-not (Test-IsList $shifts) -or $shifts.Count -ne 7) {
+            throw 'Os plantões precisam ter os 7 dias da semana.'
+        }
+        foreach ($flag in @($shifts)) {
+            if ($flag -isnot [bool]) {
+                throw 'Um plantão veio com valor inválido.'
+            }
+        }
+    }
+}
+
 function Test-CronogramaJson {
     param([string]$Body)
     try {
@@ -107,6 +168,10 @@ function Test-CronogramaJson {
     }
     if ($null -eq $raw -or -not ($raw -is [System.Collections.IDictionary])) {
         throw 'O cronograma precisa ser um objeto.'
+    }
+    if ($raw.ContainsKey('weeks')) {
+        Test-WeeksFormat $raw
+        return
     }
     foreach ($name in @('revisions', 'classesText', 'classesDone', 'shifts')) {
         if (-not $raw.ContainsKey($name)) {
