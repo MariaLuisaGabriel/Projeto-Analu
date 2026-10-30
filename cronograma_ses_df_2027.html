@@ -663,11 +663,13 @@
             focusWeek: 0,
             expanded: new Set(),
             editMode: false,
+            editSemana: false,
             openMenu: null,
             editingClass: null,
             editingStart: false,
             search: '',
             showAllPending: false,
+            weekFilter: { pendentes: true, concluidas: false },
             calMonth: null,
             calWeek: null,
             calDay: null,
@@ -768,20 +770,33 @@
             return p.total > 0 && p.done === p.total;
         }
 
+        function weekStatusTag(complete) {
+            if (complete) {
+                return '<span class="shrink-0 inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 text-[11px] font-semibold">Concluída</span>';
+            }
+            return '<span class="shrink-0 inline-flex items-center rounded-full bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 text-[11px] font-semibold">Pendente</span>';
+        }
+
+        // Default: só pendentes + semana atual (mesmo se ela estiver concluída).
+        function weekPassesFilter(weekIdx, currentIdx) {
+            if (weekIdx === currentIdx) return true;
+            const complete = isWeekComplete(state.weeks[weekIdx]);
+            if (complete) return !!ui.weekFilter.concluidas;
+            return !!ui.weekFilter.pendentes;
+        }
+
         function percent(done, total) {
             return total === 0 ? 0 : Math.round((done / total) * 100);
         }
 
-        // Com data de início: semana que contém hoje (segunda a domingo).
-        // Sem data: primeira semana com revisão pendente.
+        // Semana atual = a que contém a data de hoje (segunda a domingo),
+        // a partir da data de início. Não usa status de revisão.
         function currentWeekIndex() {
             const n = state.weeks.length;
-            if (!n) return -1;
-            if (state.startDate) {
-                return Math.min(Math.max(weekIndexForDate(new Date()), 0), n - 1);
-            }
-            const idx = state.weeks.findIndex((week) => visibleRevisions(week).some((entry) => !entry.item.done));
-            return idx === -1 ? n - 1 : idx;
+            if (!n || !state.startDate) return -1;
+            const idx = weekIndexForDate(new Date());
+            if (idx < 0 || idx >= n) return -1;
+            return idx;
         }
 
         function pendingBefore(weekIdx) {
@@ -894,7 +909,7 @@
         function revList(w, big) {
             const list = visibleRevisions(state.weeks[w]);
             if (!list.length) {
-                return `<p class="text-sm text-slate-600 px-2 py-3">Nenhum tema nesta semana. Adicione em Cronograma › Editar.</p>`;
+                return `<p class="text-sm text-slate-600 px-2 py-3">Nenhum tema nesta semana. Use Editar para adicionar.</p>`;
             }
             return `<ul class="${big ? 'space-y-1' : ''}">${list.map((entry) => revRow(w, entry.index, entry.item, { big })).join('')}</ul>`;
         }
@@ -1004,8 +1019,8 @@
                     </form>`;
             }
             const text = state.startDate
-                ? `Semana 1 começa em <strong class="text-slate-800">${fmtBrDate(toIsoDate(planStart()))}</strong>.`
-                : 'Sem data de início: a semana atual é a primeira com revisão pendente.';
+                ? `Semana 1 começa em <strong class="text-slate-800">${fmtBrDate(toIsoDate(planStart()))}</strong>. A semana atual segue a data de hoje.`
+                : 'Defina a data de início para marcar a semana atual pela data de hoje.';
             return `
                 <p class="flex flex-wrap items-center gap-x-2">
                     <i class="fas fa-calendar-alt text-slate-500" aria-hidden="true"></i>
@@ -1034,9 +1049,14 @@
             const p = weekProgress(week);
             const complete = p.total > 0 && p.done === p.total;
             const range = weekRangeLabel(w);
-            const where = w === current
-                ? '<span class="inline-flex items-center gap-1.5 text-xs font-semibold text-medical-800 bg-medical-50 border border-medical-200 rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full bg-medical-600" aria-hidden="true"></span>Semana atual</span>'
-                : '<button type="button" class="btn btn-secondary !min-h-[36px] !px-3 !text-xs" data-action="go-current" data-focus-key="go-current"><i class="fas fa-location-crosshairs" aria-hidden="true"></i>Ir para semana atual</button>';
+            let where = '';
+            if (current >= 0 && w === current) {
+                where = '<span class="inline-flex items-center gap-1.5 text-xs font-semibold text-medical-800 bg-medical-50 border border-medical-200 rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full bg-medical-600" aria-hidden="true"></span>Semana atual</span>';
+            } else if (current >= 0) {
+                where = '<button type="button" class="btn btn-secondary !min-h-[36px] !px-3 !text-xs" data-action="go-current" data-focus-key="go-current"><i class="fas fa-location-crosshairs" aria-hidden="true"></i>Ir para semana atual</button>';
+            } else if (!state.startDate) {
+                where = '<span class="text-xs text-slate-500">Defina a data de início para marcar a semana atual</span>';
+            }
 
             const focusCard = card(`
                 <div class="flex items-center gap-1 p-2 sm:p-3 border-b border-slate-100">
@@ -1057,13 +1077,27 @@
                 <div class="p-3 sm:p-5">
                     <div class="flex items-center justify-between gap-3 px-1 mb-2">
                         <h3 class="section-title"><i class="fas fa-rotate text-medical-600" aria-hidden="true"></i>Revisões</h3>
-                        <span class="text-sm font-semibold tabular-nums ${complete ? 'text-medical-700' : 'text-slate-700'}">${p.done} de ${p.total}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-semibold tabular-nums ${complete ? 'text-medical-700' : 'text-slate-700'}">${p.done} de ${p.total}</span>
+                            <button type="button" data-action="toggle-edit-semana" data-focus-key="toggle-edit-semana" aria-pressed="${ui.editSemana}"
+                                class="btn ${ui.editSemana ? 'btn-primary' : 'btn-secondary'} !min-h-[36px] !px-3 !text-xs">
+                                <i class="fas ${ui.editSemana ? 'fa-check' : 'fa-pen'}" aria-hidden="true"></i>${ui.editSemana ? 'Concluir' : 'Editar'}
+                            </button>
+                        </div>
                     </div>
-                    <div class="h-2 mx-1 mb-3 rounded-full bg-slate-100 overflow-hidden" aria-hidden="true">
-                        <div class="h-full rounded-full bg-medical-500 transition-all duration-500" style="width: ${percent(p.done, p.total)}%"></div>
-                    </div>
-                    ${complete ? '<p class="fade-in flex items-center gap-2 mx-1 mb-2 rounded-xl bg-medical-50 text-medical-800 text-sm font-semibold px-3 py-2"><i class="fas fa-circle-check" aria-hidden="true"></i>Semana concluída. Bom trabalho!</p>' : ''}
-                    ${revList(w, true)}
+                    ${ui.editSemana ? `
+                        <p class="fade-in mx-1 mb-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm px-3 py-2">Modo edição: renomeie, adicione ou remova temas desta semana.</p>
+                        ${revEditList(w)}
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                            <button type="button" class="btn btn-danger !min-h-[40px] !text-sm" data-action="remove-week" data-w="${w}">
+                                <i class="fas fa-trash-can" aria-hidden="true"></i>Remover semana ${w + 1}
+                            </button>
+                        </div>` : `
+                        <div class="h-2 mx-1 mb-3 rounded-full bg-slate-100 overflow-hidden" aria-hidden="true">
+                            <div class="h-full rounded-full bg-medical-500 transition-all duration-500" style="width: ${percent(p.done, p.total)}%"></div>
+                        </div>
+                        ${complete ? '<p class="fade-in flex items-center gap-2 mx-1 mb-2 rounded-xl bg-medical-50 text-medical-800 text-sm font-semibold px-3 py-2"><i class="fas fa-circle-check" aria-hidden="true"></i>Semana concluída. Bom trabalho!</p>' : ''}
+                        ${revList(w, true)}`}
                 </div>`, ui.celebrate === w ? 'celebrate' : '');
 
             const pending = pendingBefore(w);
@@ -1126,7 +1160,7 @@
                 <div class="grid gap-5 md:grid-cols-2 pt-3">
                     <div>
                         <h3 class="section-title mb-1 px-1">Revisões <span class="ml-auto normal-case tracking-normal font-semibold text-slate-700 tabular-nums">${p.done} de ${p.total}</span></h3>
-                        ${ui.editMode ? revEditList(w) : revList(w, false)}
+                        ${revList(w, false)}
                     </div>
                     <div class="space-y-5">
                         <div>
@@ -1138,26 +1172,32 @@
                             ${shiftStrip(w)}
                         </div>
                     </div>
-                </div>
-                ${ui.editMode ? `
-                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
-                        <button type="button" class="btn btn-danger" data-action="remove-week" data-w="${w}"><i class="fas fa-trash-can" aria-hidden="true"></i>Remover semana ${w + 1}</button>
-                    </div>` : ''}`;
+                </div>`;
         }
 
         function weekMenu(w) {
+            if (ui.editMode) {
+                return `
+                    <button type="button" data-action="remove-week" data-w="${w}" data-focus-key="remove-week-${w}"
+                        class="icon-btn hover:!text-red-700 hover:!bg-red-50 text-red-600" aria-label="Remover semana ${w + 1}" title="Remover semana">
+                        <i class="fas fa-xmark text-lg" aria-hidden="true"></i>
+                    </button>`;
+            }
             return menuHtml('week-' + w, 'Opções da semana ' + (w + 1), [
-                { action: 'open-in-semana', label: 'Abrir na aba Semana', icon: 'fa-calendar-day', data: { w } },
-                { action: 'edit-week', label: 'Editar temas', icon: 'fa-pen', data: { w } },
-                { action: 'remove-week', label: 'Remover semana', icon: 'fa-trash-can', danger: true, data: { w } }
+                { action: 'open-in-semana', label: 'Abrir na aba Semana', icon: 'fa-calendar-day', data: { w } }
             ]);
         }
 
         function renderWeekList() {
             const current = currentWeekIndex();
-            const rows = state.weeks.map((week, w) => {
+            const visibleIdx = [];
+            state.weeks.forEach((_, w) => {
+                if (weekPassesFilter(w, current)) visibleIdx.push(w);
+            });
+            const rows = visibleIdx.map((w) => {
+                const week = state.weeks[w];
                 const p = weekProgress(week);
-                const complete = p.total > 0 && p.done === p.total;
+                const complete = isWeekComplete(week);
                 const isCurrent = w === current;
                 const open = ui.expanded.has(w);
                 const shifts = shiftCount(week);
@@ -1169,7 +1209,7 @@
                         <div class="flex items-center gap-1 pr-1">
                             <button type="button" data-action="toggle-week" data-w="${w}" data-focus-key="row-${w}"
                                 aria-expanded="${open}" ${open ? `aria-controls="week-body-${w}"` : ''}
-                                class="flex-1 min-w-0 flex items-center gap-3 pl-4 pr-2 min-h-[60px] text-left rounded-2xl">
+                                class="flex-1 min-w-0 flex items-center gap-2 sm:gap-3 pl-4 pr-1 min-h-[60px] text-left rounded-2xl">
                                 <span class="w-[5.5rem] sm:w-28 shrink-0">
                                     <span class="block font-semibold ${complete && !isCurrent ? 'text-slate-600' : 'text-slate-900'}">Semana ${w + 1}</span>
                                     ${isCurrent ? '<span class="block text-xs font-semibold text-medical-700">Atual</span>' : range ? `<span class="block text-xs text-slate-600">${range}</span>` : ''}
@@ -1179,15 +1219,21 @@
                                 </span>
                                 <span class="text-sm tabular-nums font-semibold ${complete ? 'text-medical-700' : 'text-slate-700'}">${p.total ? p.done + '/' + p.total : '–'}<span class="sr-only"> revisões feitas</span></span>
                                 ${shifts ? `<span class="text-xs font-semibold text-shift-text whitespace-nowrap"><i class="fas fa-hospital" aria-hidden="true"></i> ${shifts}<span class="sr-only"> ${shifts === 1 ? 'plantão' : 'plantões'}</span></span>` : ''}
-                                ${complete ? '<i class="fas fa-circle-check text-medical-600" aria-hidden="true"></i><span class="sr-only">Concluída</span>' : ''}
-                                <i class="fas fa-chevron-down text-slate-500 ml-auto transition-transform ${open ? 'rotate-180' : ''}" aria-hidden="true"></i>
+                                <span class="ml-auto shrink-0 inline-flex items-center gap-2 pl-2">
+                                    ${weekStatusTag(complete)}
+                                    <i class="fas fa-chevron-down text-slate-500 transition-transform ${open ? 'rotate-180' : ''}" aria-hidden="true"></i>
+                                </span>
                             </button>
                             ${weekMenu(w)}
                         </div>
-                        ${open ? `<div id="week-body-${w}" class="fade-in px-3 sm:px-4 pb-4 border-t border-slate-100">${weekBody(w)}</div>` : ''}
+                        ${!ui.editMode && open ? `<div id="week-body-${w}" class="fade-in px-3 sm:px-4 pb-4 border-t border-slate-100">${weekBody(w)}</div>` : ''}
                     </li>`;
             }).join('');
+            const empty = !visibleIdx.length
+                ? '<p class="text-sm text-slate-600 px-1 py-8 text-center">Nenhuma semana neste filtro.</p>'
+                : '';
             return `
+                ${empty}
                 <ol class="space-y-2">${rows}</ol>
                 ${ui.editMode ? `
                     <button type="button" data-action="add-week" data-focus-key="add-week"
@@ -1310,8 +1356,20 @@
                     class="min-h-[40px] px-3 rounded-lg text-sm font-semibold flex items-center gap-2 ${ui.view === view ? 'bg-white text-medical-700 shadow-sm' : 'text-slate-700 hover:text-slate-900'}">
                     <i class="fas ${icon}" aria-hidden="true"></i>${label}
                 </button>`;
+            const filterChip = (key, label, active, tone) => {
+                const on = active
+                    ? (tone === 'orange'
+                        ? 'bg-orange-50 text-orange-800 border-orange-300 ring-1 ring-orange-200'
+                        : 'bg-emerald-50 text-emerald-800 border-emerald-300 ring-1 ring-emerald-200')
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300';
+                return `
+                    <button type="button" data-action="toggle-week-filter" data-filter="${key}" aria-pressed="${active}" data-focus-key="filter-${key}"
+                        class="min-h-[40px] px-3 rounded-full border text-sm font-semibold inline-flex items-center gap-2 ${on}">
+                        <i class="fas ${active ? 'fa-check-circle' : 'fa-circle'} text-xs" aria-hidden="true"></i>${label}
+                    </button>`;
+            };
             return `
-                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
                     <h2 class="text-xl font-bold text-slate-900">Cronograma <span class="text-sm font-medium text-slate-600">· ${plural(state.weeks.length, 'semana', 'semanas')}</span></h2>
                     <div class="flex items-center gap-2">
                         <div role="group" aria-label="Visualização" class="inline-flex rounded-xl bg-slate-200 p-1 gap-1">
@@ -1324,7 +1382,14 @@
                         </button>
                     </div>
                 </div>
-                ${ui.editMode ? '<p class="fade-in mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm px-4 py-3">Modo edição: abra uma semana para renomear, adicionar ou remover temas. Adicione semanas no fim da lista.</p>' : ''}
+                ${isList ? `
+                    <div class="mb-4 flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar semanas por status">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 mr-1">Mostrar</span>
+                        ${filterChip('pendentes', 'Pendentes', ui.weekFilter.pendentes, 'orange')}
+                        ${filterChip('concluidas', 'Concluídas', ui.weekFilter.concluidas, 'green')}
+                        <span class="text-xs text-slate-500 w-full sm:w-auto sm:ml-1">Com data de início, a semana de hoje aparece sempre.</span>
+                    </div>` : ''}
+                ${ui.editMode && isList ? '<p class="fade-in mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm px-4 py-3">Modo edição: use o X vermelho para remover uma semana, ou adicione uma nova no fim da lista. Para editar temas, use a aba Semana.</p>' : ''}
                 ${isList ? renderWeekList() : renderCalendar()}`;
         }
 
@@ -1440,10 +1505,11 @@
 
         function onStateLoaded() {
             ui.loaded = true;
-            ui.focusWeek = currentWeekIndex();
-            if (ui.focusWeek >= 0) {
-                ui.expanded = new Set([ui.focusWeek]);
-                ui.calWeek = ui.focusWeek;
+            const current = currentWeekIndex();
+            ui.focusWeek = current >= 0 ? current : 0;
+            if (current >= 0) {
+                ui.expanded = new Set([current]);
+                ui.calWeek = current;
             }
             render();
         }
@@ -1583,8 +1649,16 @@
             const shift = (idx) => (idx > w ? idx - 1 : idx);
             ui.expanded = new Set([...ui.expanded].filter((idx) => idx !== w).map(shift));
             if (ui.focusWeek > w) ui.focusWeek -= 1;
+            if (ui.focusWeek >= state.weeks.length) ui.focusWeek = Math.max(0, state.weeks.length - 1);
             if (ui.calWeek === w) { ui.calWeek = null; ui.calDay = null; } else if (ui.calWeek != null) ui.calWeek = shift(ui.calWeek);
-            ui.pendingFocus = state.weeks.length ? 'row-' + Math.min(w, state.weeks.length - 1) : 'toggle-edit';
+            if (!state.weeks.length) ui.editSemana = false;
+            if (ui.tab === 'semana') {
+                ui.pendingFocus = state.weeks.length ? 'toggle-edit-semana' : 'focus-title';
+            } else if (ui.editMode) {
+                ui.pendingFocus = state.weeks.length ? 'add-week' : 'toggle-edit';
+            } else {
+                ui.pendingFocus = state.weeks.length ? 'row-' + Math.min(w, state.weeks.length - 1) : 'toggle-edit';
+            }
             saveState();
             render();
             toast('Semana removida.');
@@ -1597,10 +1671,11 @@
             }
             state.weeks.push(emptyWeek());
             const w = state.weeks.length - 1;
-            ui.expanded.add(w);
-            ui.pendingFocus = 'add-rev-' + w;
+            ui.expanded = new Set();
+            ui.pendingFocus = ui.editMode ? 'add-week' : 'row-' + w;
             saveState();
             render();
+            toast('Semana ' + (w + 1) + ' adicionada.');
         }
 
         function saveStartDate(form) {
@@ -1611,20 +1686,23 @@
             }
             state.startDate = toIsoDate(mondayOf(parseIsoDate(value)));
             ui.editingStart = false;
-            ui.focusWeek = currentWeekIndex();
-            ui.calWeek = ui.focusWeek;
+            const current = currentWeekIndex();
+            ui.focusWeek = current >= 0 ? current : 0;
+            ui.calWeek = current >= 0 ? current : null;
             ui.calMonth = null;
             ui.pendingFocus = 'start-edit';
             saveState();
             render();
-            toast('Semana 1 começa em ' + fmtBrDate(state.startDate) + '. Você está na Semana ' + (ui.focusWeek + 1) + '.');
+            toast(current >= 0
+                ? 'Semana 1 começa em ' + fmtBrDate(state.startDate) + '. Você está na Semana ' + (current + 1) + '.'
+                : 'Semana 1 começa em ' + fmtBrDate(state.startDate) + '.');
         }
 
         function clearStartDate() {
-            if (!window.confirm('Remover a data de início? A semana atual passa a ser a primeira com revisão pendente.')) return;
+            if (!window.confirm('Remover a data de início? Sem ela, nenhuma semana fica marcada como atual pela data de hoje.')) return;
             state.startDate = null;
             ui.editingStart = false;
-            ui.focusWeek = currentWeekIndex();
+            ui.focusWeek = Math.max(0, Math.min(ui.focusWeek, state.weeks.length - 1));
             ui.calMonth = null;
             ui.pendingFocus = 'start-edit';
             saveState();
@@ -1639,12 +1717,35 @@
             'set-tab': (el) => setTab(el.dataset.tabTarget, true),
             'prev-week': () => { ui.focusWeek -= 1; ui.showAllPending = false; render(); },
             'next-week': () => { ui.focusWeek += 1; ui.showAllPending = false; render(); },
-            'go-current': () => { ui.focusWeek = currentWeekIndex(); ui.showAllPending = false; ui.pendingFocus = 'focus-title'; render(); },
+            'go-current': () => {
+                const current = currentWeekIndex();
+                if (current < 0) {
+                    toast(state.startDate
+                        ? 'Hoje está fora do período do cronograma.'
+                        : 'Defina a data de início para localizar a semana atual.', 'warn');
+                    return;
+                }
+                ui.focusWeek = current;
+                ui.showAllPending = false;
+                ui.pendingFocus = 'focus-title';
+                render();
+            },
             'show-all-pending': () => { ui.showAllPending = true; render(); },
             'toggle-shift': (el) => toggleShift(Number(el.dataset.w), Number(el.dataset.d)),
             'toggle-week': (el) => {
                 const w = Number(el.dataset.w);
-                if (ui.expanded.has(w)) ui.expanded.delete(w); else ui.expanded.add(w);
+                // Uma semana aberta por vez: abrir outra fecha a anterior.
+                if (ui.expanded.has(w)) ui.expanded = new Set();
+                else ui.expanded = new Set([w]);
+                render();
+            },
+            'toggle-week-filter': (el) => {
+                const key = el.dataset.filter;
+                if (key !== 'pendentes' && key !== 'concluidas') return;
+                ui.weekFilter[key] = !ui.weekFilter[key];
+                const current = currentWeekIndex();
+                ui.expanded = new Set([...ui.expanded].filter((w) => weekPassesFilter(w, current)));
+                ui.pendingFocus = 'filter-' + key;
                 render();
             },
             'menu': (el) => {
@@ -1655,17 +1756,23 @@
                 render();
             },
             'open-in-semana': (el) => { ui.focusWeek = Number(el.dataset.w); ui.showAllPending = false; setTab('semana'); },
-            'edit-week': (el) => {
-                const w = Number(el.dataset.w);
-                ui.editMode = true;
-                ui.view = 'lista';
-                writeUiPref(VIEW_KEY, 'lista');
-                ui.expanded.add(w);
-                ui.pendingFocus = 'add-rev-' + w;
+            'remove-week': (el) => removeWeek(Number(el.dataset.w)),
+            'toggle-edit': () => {
+                ui.editMode = !ui.editMode;
+                ui.openMenu = null;
+                if (ui.editMode) {
+                    ui.view = 'lista';
+                    writeUiPref(VIEW_KEY, 'lista');
+                    ui.expanded = new Set();
+                }
+                ui.pendingFocus = 'toggle-edit';
                 render();
             },
-            'remove-week': (el) => removeWeek(Number(el.dataset.w)),
-            'toggle-edit': () => { ui.editMode = !ui.editMode; render(); },
+            'toggle-edit-semana': () => {
+                ui.editSemana = !ui.editSemana;
+                ui.pendingFocus = ui.editSemana ? 'add-rev-' + ui.focusWeek : 'toggle-edit-semana';
+                render();
+            },
             'add-week': () => addWeek(),
             'remove-rev': (el) => removeRevision(Number(el.dataset.w), Number(el.dataset.i)),
             'edit-class': (el) => {
@@ -2072,7 +2179,7 @@
 
             const startIdx = state.weeks.length;
             state.weeks.push.apply(state.weeks, novas);
-            for (let i = startIdx; i < state.weeks.length; i++) ui.expanded.add(i);
+            ui.expanded = new Set([startIdx]);
             ui.tab = 'cronograma';
             ui.view = 'lista';
             ui.editMode = false;

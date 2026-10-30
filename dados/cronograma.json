@@ -16,27 +16,10 @@
         },
         {
           "text": "Trauma Abdominal",
-          "done": false
+          "done": true
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -51,7 +34,7 @@
       "revisions": [
         {
           "text": "TCE",
-          "done": false
+          "done": true
         },
         {
           "text": "Queimaduras",
@@ -66,24 +49,7 @@
           "done": true
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -113,71 +79,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
-      "shifts": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ]
-    },
-    {
-      "revisions": [
-        {
-          "text": "Hemorragia Digestiva",
-          "done": false
-        },
-        {
-          "text": "Tumores Aparelho Digestivo",
-          "done": false
-        },
-        {
-          "text": "Técnica Operatória",
-          "done": false
-        },
-        {
-          "text": "Cuidados Pré-operatórios",
-          "done": false
-        }
-      ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -207,24 +109,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -254,24 +139,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -301,24 +169,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -348,24 +199,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -395,24 +229,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -442,24 +259,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -489,24 +289,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -536,24 +319,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -583,24 +349,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -630,24 +379,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -677,24 +409,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -724,24 +439,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -771,24 +469,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -818,24 +499,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -865,24 +529,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -912,24 +559,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -959,24 +589,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -1006,24 +619,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -1053,24 +649,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -1100,24 +679,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -1143,24 +705,7 @@
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -1174,66 +719,23 @@
     {
       "revisions": [
         {
-          "text": "",
+          "text": "aa",
           "done": false
         },
         {
-          "text": "",
+          "text": "bb",
           "done": false
         },
         {
-          "text": "",
+          "text": "cc",
+          "done": false
+        },
+        {
+          "text": "dd",
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
-      "shifts": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ]
-    },
-    {
-      "revisions": [],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -1247,40 +749,23 @@
     {
       "revisions": [
         {
-          "text": "a",
+          "text": "ee",
           "done": false
         },
         {
-          "text": "a1",
+          "text": "ff",
           "done": false
         },
         {
-          "text": "a2",
+          "text": "gg",
           "done": false
         },
         {
-          "text": "a3",
+          "text": "hh",
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -1294,134 +779,15 @@
     {
       "revisions": [
         {
-          "text": "b",
+          "text": "aa",
           "done": false
         },
         {
-          "text": "b1",
-          "done": false
-        },
-        {
-          "text": "b2",
-          "done": false
-        },
-        {
-          "text": "b3",
+          "text": "bb",
           "done": false
         }
       ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
-      "shifts": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ]
-    },
-    {
-      "revisions": [
-        {
-          "text": "c",
-          "done": false
-        },
-        {
-          "text": "c1",
-          "done": false
-        },
-        {
-          "text": "c2",
-          "done": false
-        },
-        {
-          "text": "c3",
-          "done": false
-        }
-      ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
-      "shifts": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ]
-    },
-    {
-      "revisions": [
-        {
-          "text": "d",
-          "done": false
-        },
-        {
-          "text": "d1",
-          "done": false
-        },
-        {
-          "text": "d3",
-          "done": false
-        },
-        {
-          "text": "e1",
-          "done": false
-        }
-      ],
-      "classes": [
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        },
-        {
-          "text": "",
-          "done": false
-        }
-      ],
+      "classes": [],
       "shifts": [
         false,
         false,
@@ -1432,5 +798,6 @@
         false
       ]
     }
-  ]
+  ],
+  "startDate": "2026-10-19"
 }
