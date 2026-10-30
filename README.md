@@ -44,3 +44,32 @@ Se abrir o arquivo HTML direto
 O cronograma precisa do Iniciar.bat para gravar no arquivo.
 Se você abrir o HTML com dois cliques, a tela avisa e o
 progresso fica só naquele navegador.
+
+Como usar a tela
+----------------
+A tela tem três abas (no celular, ficam na barra de baixo):
+
+- Semana: a semana em foco, com as revisões para marcar, os
+  pendentes de semanas anteriores, o campo para registrar uma
+  aula assistida (digite e aperte Enter) e os dias de plantão.
+  As setas trocam de semana e "Ir para semana atual" volta.
+- Cronograma: todas as semanas em lista ou em calendário.
+  Clique numa semana (ou num dia do calendário) para ver só as
+  tarefas dela. Para adicionar ou remover semanas e temas,
+  use o botão Editar ou o menu "⋯" de cada semana.
+- Aulas: histórico de todas as aulas registradas, com busca.
+
+No header, o botão "Adicionar Atividades" abre um modal para
+enviar um .txt ou escrever subtópicos de Clínica, Cirurgia,
+Preventivo e Pediatria. Ao salvar, o sistema cria semanas no
+final do cronograma, misturando um subtópico de cada área
+(e preenchendo as sobras quando as listas têm tamanhos
+diferentes).
+
+Data de início
+--------------
+No fim da aba Semana, use "Definir data de início" e escolha o
+dia em que a semana 1 começa. As semanas vão de segunda a
+domingo, e a semana atual passa a seguir a data de hoje.
+Sem data de início, a semana atual é a primeira que ainda tem
+revisão pendente. A data também é gravada no arquivo.
