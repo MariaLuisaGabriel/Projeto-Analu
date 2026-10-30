@@ -364,7 +364,7 @@
             if (res.status === 409) return;
             if (!res.ok) throw new Error('Não foi possível gravar o arquivo');
             const hora = new Date(saveTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            setFileStatus('Salvo em dados/cronograma.json às ' + hora, 'bg-green-400');
+            setFileStatus('Salvo às ' + hora, 'bg-green-400');
         }
 
         function scheduleServerWrite() {
@@ -374,7 +374,7 @@
             writeTimer = setTimeout(() => {
                 writeChain = writeChain.then(() => writeServerNow()).catch((err) => {
                     console.error('Erro ao salvar no arquivo', err);
-                    setFileStatus('Não consegui gravar em dados/cronograma.json. Seus dados continuam neste navegador.', 'bg-red-400');
+                    setFileStatus('Não consegui gravar os dados. Seus dados continuam neste navegador.', 'bg-red-400');
                 });
             }, 600);
         }
@@ -403,7 +403,7 @@
                 if (res.status === 500) {
                     serverReady = false;
                     state = localRaw ? normalizeState(localRaw) : normalizeState({});
-                    setFileStatus('O arquivo dados/cronograma.json não pôde ser lido. O progresso desta tela está só neste navegador.', 'bg-red-400');
+                    setFileStatus('O arquivo não pôde ser lido. O progresso desta tela está só neste navegador.', 'bg-red-400');
                 } else if (!res.ok) {
                     throw new Error('resposta ' + res.status);
                 } else {
@@ -418,7 +418,7 @@
                             await writeServerNow();
                         } catch (err) {
                             console.error(err);
-                            setFileStatus('Não consegui copiar o progresso para dados/cronograma.json. Ele continua neste navegador.', 'bg-red-400');
+                            setFileStatus('Não consegui copiar o progresso para o arquivo. Ele continua neste navegador.', 'bg-red-400');
                         }
                     } else {
                         state = normalizeState(remoteRaw);
@@ -428,10 +428,10 @@
                                 await writeServerNow();
                             } catch (err) {
                                 console.error(err);
-                                setFileStatus('Não consegui gravar a estrutura em dados/cronograma.json. Ela continua neste navegador.', 'bg-red-400');
+                                setFileStatus('Não consegui gravar a estrutura no arquivo. Ela continua neste navegador.', 'bg-red-400');
                             }
                         } else {
-                            setFileStatus('Conectado a dados/cronograma.json', 'bg-green-400');
+                            setFileStatus('Conectado', 'bg-green-400');
                         }
                     }
                 }

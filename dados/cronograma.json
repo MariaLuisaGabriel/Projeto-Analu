@@ -1,1 +1,1248 @@
-{"revisions":{},"classesText":{},"classesDone":{},"shifts":{}}
+{
+  "weeks": [
+    {
+      "revisions": [
+        {
+          "text": "Abordagem Inicial",
+          "done": true
+        },
+        {
+          "text": "Trauma de Face",
+          "done": true
+        },
+        {
+          "text": "Trauma Torácico",
+          "done": true
+        },
+        {
+          "text": "Trauma Abdominal",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "TCE",
+          "done": false
+        },
+        {
+          "text": "Queimaduras",
+          "done": true
+        },
+        {
+          "text": "Abdome Agudo Inflamatório",
+          "done": true
+        },
+        {
+          "text": "Abdome Agudo Isquêmico",
+          "done": true
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Abdome Agudo Obstrutivo",
+          "done": true
+        },
+        {
+          "text": "Abdome Agudo Perfurativo",
+          "done": false
+        },
+        {
+          "text": "Cirurgia da Obesidade",
+          "done": true
+        },
+        {
+          "text": "Cólon e Reto",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Hemorragia Digestiva",
+          "done": false
+        },
+        {
+          "text": "Tumores Aparelho Digestivo",
+          "done": false
+        },
+        {
+          "text": "Técnica Operatória",
+          "done": false
+        },
+        {
+          "text": "Cuidados Pré-operatórios",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Cuidados Pós-Operatórios",
+          "done": false
+        },
+        {
+          "text": "Feridas e Enxertos",
+          "done": false
+        },
+        {
+          "text": "Hérnias",
+          "done": false
+        },
+        {
+          "text": "Anestesia",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Afecções Pancreáticas",
+          "done": false
+        },
+        {
+          "text": "Doença Inflamatória Intestinal",
+          "done": false
+        },
+        {
+          "text": "Síndrome Disfágica",
+          "done": false
+        },
+        {
+          "text": "Síndrome Dispéptica",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Vias Biliares",
+          "done": false
+        },
+        {
+          "text": "Tumores Dermatológicos",
+          "done": false
+        },
+        {
+          "text": "Tumores Cabeça e Pescoço",
+          "done": false
+        },
+        {
+          "text": "Aneurismas",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Doença Arterial Periférica",
+          "done": false
+        },
+        {
+          "text": "Doenças Venosas",
+          "done": false
+        },
+        {
+          "text": "Estenose de Carótidas",
+          "done": false
+        },
+        {
+          "text": "Afecções Urológicas Benignas",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Tumores Urológicos",
+          "done": false
+        },
+        {
+          "text": "Cirurgia Torácica",
+          "done": false
+        },
+        {
+          "text": "Tumores Pulmonares",
+          "done": false
+        },
+        {
+          "text": "Fraturas Ósseas",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Luxações",
+          "done": false
+        },
+        {
+          "text": "Ortopedia Pediátrica",
+          "done": false
+        },
+        {
+          "text": "Tendinites",
+          "done": false
+        },
+        {
+          "text": "HAS",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Insuficiência Cardíaca",
+          "done": false
+        },
+        {
+          "text": "Valvopatias",
+          "done": false
+        },
+        {
+          "text": "Síndrome Coronariana",
+          "done": false
+        },
+        {
+          "text": "Diabetes",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Síndrome Metabólica",
+          "done": false
+        },
+        {
+          "text": "Tireoide",
+          "done": false
+        },
+        {
+          "text": "Paratireoides e Suprarrenal",
+          "done": false
+        },
+        {
+          "text": "Distúrbios Hidroeletrolíticos",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Glomerulopatias e Tubulopatias",
+          "done": false
+        },
+        {
+          "text": "Insuficiência Renal",
+          "done": false
+        },
+        {
+          "text": "Distúrbios Obstrutivos",
+          "done": false
+        },
+        {
+          "text": "Embolia Pulmonar",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Pneumonias e Síndromes Gripais",
+          "done": false
+        },
+        {
+          "text": "Tuberculose",
+          "done": false
+        },
+        {
+          "text": "Síndromes Febris",
+          "done": false
+        },
+        {
+          "text": "Endocardite",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Infecções do SNC",
+          "done": false
+        },
+        {
+          "text": "HIV e AIDS",
+          "done": false
+        },
+        {
+          "text": "Hepatites",
+          "done": false
+        },
+        {
+          "text": "Cirrose e Insuficiência Hepática",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Artrites",
+          "done": false
+        },
+        {
+          "text": "Colagenoses e Miopatias",
+          "done": false
+        },
+        {
+          "text": "Vasculites",
+          "done": false
+        },
+        {
+          "text": "Anemias",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Onco-Hematologia",
+          "done": false
+        },
+        {
+          "text": "Distúrbios da Hemostasia",
+          "done": false
+        },
+        {
+          "text": "Geriatria e Demências",
+          "done": false
+        },
+        {
+          "text": "AVC",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Síndromes Neurológicas",
+          "done": false
+        },
+        {
+          "text": "Cefaleias",
+          "done": false
+        },
+        {
+          "text": "Doenças Pulmonares Intersticiais",
+          "done": false
+        },
+        {
+          "text": "Abuso de Substâncias",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Sepse e Choque",
+          "done": false
+        },
+        {
+          "text": "Doenças Infectoparasitárias",
+          "done": false
+        },
+        {
+          "text": "Farmacodermias",
+          "done": false
+        },
+        {
+          "text": "Transtornos Mentais",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Intoxicações Exógenas",
+          "done": false
+        },
+        {
+          "text": "Aspectos Históricos do SUS",
+          "done": false
+        },
+        {
+          "text": "Atenção Primária à Saúde",
+          "done": false
+        },
+        {
+          "text": "Níveis de Prevenção",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Ética médica",
+          "done": false
+        },
+        {
+          "text": "Notificação",
+          "done": false
+        },
+        {
+          "text": "Epidemias e Pandemias",
+          "done": false
+        },
+        {
+          "text": "Estatística de Testes",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Indicadores de Morbimortalidade",
+          "done": false
+        },
+        {
+          "text": "Crescimento e Desenvolvimento",
+          "done": false
+        },
+        {
+          "text": "Imunizações",
+          "done": false
+        },
+        {
+          "text": "Transtornos do Comportamento",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Distúrbios Estaturais",
+          "done": false
+        },
+        {
+          "text": "Distúrbios Carenciais",
+          "done": false
+        },
+        {
+          "text": "Constipação Intestinal",
+          "done": false
+        },
+        {
+          "text": "Síndromes Diarreicas",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Parasitoses",
+          "done": false
+        },
+        {
+          "text": "Nariz, Ouvido e Laringe",
+          "done": false
+        },
+        {
+          "text": "Pneumonias (Pediatria)",
+          "done": false
+        },
+        {
+          "text": "Doenças Exantemáticas",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "Síndromes Febris (Pediatria)",
+          "done": false
+        },
+        {
+          "text": "Diabetes (Pediatria)",
+          "done": false
+        },
+        {
+          "text": "ITU (Pediatria)",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "revisions": [],
+      "classes": [
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        },
+        {
+          "text": "",
+          "done": false
+        }
+      ],
+      "shifts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  ]
+}
