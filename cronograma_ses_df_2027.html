@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma SES-DF 2027</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        medical: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6', // Teal 500
+                            600: '#0d9488', // Teal 600
+                            700: '#0f766e', // Teal 700
+                        },
+                        shift: {
+                            bg: '#ffedd5',
+                            text: '#ea580c',
+                            border: '#fdba74'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .checkbox-custom {
+            appearance: none;
+            width: 1.15em;
+            height: 1.15em;
+            border: 2px solid #cbd5e1;
+            border-radius: 0.25em;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .checkbox-custom::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white;
+            background-color: transform;
+            transform-origin: bottom left;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        .checkbox-custom:checked {
+            background-color: #0d9488;
+            border-color: #0d9488;
+        }
+        .checkbox-custom:checked::before {
+            transform: scale(1);
+        }
+        
+        .topic-text { transition: color 0.2s ease, text-decoration 0.2s ease; }
+        .checkbox-custom:checked + .topic-text {
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+
+        .day-btn {
+            transition: all 0.2s;
+        }
+        .day-btn.active {
+            background-color: #ffedd5;
+            color: #ea580c;
+            border-color: #fdba74;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header & Dashboard -->
+    <header class="bg-medical-700 shadow-md sticky top-0 z-20">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-4 text-white">
+                    <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                        <i class="fas fa-heartbeat text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold tracking-tight">Cronograma SES-DF 2027</h1>
+                        <p class="text-medical-100 text-sm font-medium">Rotina Grupo 12 - Conciliando Plantões HRC e Estudos</p>
+                    </div>
+                </div>
+                
+                <!-- Global Progress Bar -->
+                <div class="bg-white/10 border border-white/20 rounded-xl p-4 w-full md:w-96 backdrop-blur-sm shadow-inner">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-white flex items-center gap-2">
+                            <i class="fas fa-tasks"></i> Progresso das Revisões
+                        </span>
+                        <span id="progress-text" class="text-sm font-bold text-white">0 / 99</span>
+                    </div>
+                    <div class="w-full bg-black/20 rounded-full h-2.5 overflow-hidden">
+                        <div id="progress-bar" class="bg-medical-100 h-2.5 rounded-full transition-all duration-500 ease-out relative" style="width: 0%">
+                            <div class="absolute inset-0 bg-white/20 w-full animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Salvamento no arquivo local -->
+            <div id="file-panel" class="mt-4 flex items-center gap-3 text-sm">
+                <span id="file-dot" class="w-2.5 h-2.5 rounded-full bg-slate-300 shrink-0"></span>
+                <span id="file-status">Carregando…</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="weeks-container">
+            <!-- Weeks generated by JS -->
+        </div>
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const topics = [
+            "Abordagem Inicial", "Trauma de Face", "Trauma Torácico", "Trauma Abdominal", "TCE", 
+            "Queimaduras", "Abdome Agudo Inflamatório", "Abdome Agudo Isquêmico", "Abdome Agudo Obstrutivo", 
+            "Abdome Agudo Perfurativo", "Cirurgia da Obesidade", "Cólon e Reto", "Hemorragia Digestiva", 
+            "Tumores Aparelho Digestivo", "Técnica Operatória", "Cuidados Pré-operatórios", "Cuidados Pós-Operatórios", 
+            "Feridas e Enxertos", "Hérnias", "Anestesia", "Afecções Pancreáticas", "Doença Inflamatória Intestinal", 
+            "Síndrome Disfágica", "Síndrome Dispéptica", "Vias Biliares", "Tumores Dermatológicos", 
+            "Tumores Cabeça e Pescoço", "Aneurismas", "Doença Arterial Periférica", "Doenças Venosas", 
+            "Estenose de Carótidas", "Afecções Urológicas Benignas", "Tumores Urológicos", "Cirurgia Torácica", 
+            "Tumores Pulmonares", "Fraturas Ósseas", "Luxações", "Ortopedia Pediátrica", "Tendinites", "HAS", 
+            "Insuficiência Cardíaca", "Valvopatias", "Síndrome Coronariana", "Diabetes", "Síndrome Metabólica", 
+            "Tireoide", "Paratireoides e Suprarrenal", "Distúrbios Hidroeletrolíticos", "Glomerulopatias e Tubulopatias", 
+            "Insuficiência Renal", "Distúrbios Obstrutivos", "Embolia Pulmonar", "Pneumonias e Síndromes Gripais", 
+            "Tuberculose", "Síndromes Febris", "Endocardite", "Infecções do SNC", "HIV e AIDS", "Hepatites", 
+            "Cirrose e Insuficiência Hepática", "Artrites", "Colagenoses e Miopatias", "Vasculites", "Anemias", 
+            "Onco-Hematologia", "Distúrbios da Hemostasia", "Geriatria e Demências", "AVC", "Síndromes Neurológicas", 
+            "Cefaleias", "Doenças Pulmonares Intersticiais", "Abuso de Substâncias", "Sepse e Choque", 
+            "Doenças Infectoparasitárias", "Farmacodermias", "Transtornos Mentais", "Intoxicações Exógenas", 
+            "Aspectos Históricos do SUS", "Atenção Primária à Saúde", "Níveis de Prevenção", "Ética médica", 
+            "Notificação", "Epidemias e Pandemias", "Estatística de Testes", "Indicadores de Morbimortalidade", 
+            "Crescimento e Desenvolvimento", "Imunizações", "Transtornos do Comportamento", "Distúrbios Estaturais", 
+            "Distúrbios Carenciais", "Constipação Intestinal", "Síndromes Diarreicas", "Parasitoses", 
+            "Nariz, Ouvido e Laringe", "Pneumonias (Pediatria)", "Doenças Exantemáticas", "Síndromes Febris (Pediatria)", 
+            "Diabetes (Pediatria)", "ITU (Pediatria)"
+        ];
+
+        const daysOfWeek = [
+            { label: 'S', name: 'Segunda' }, { label: 'T', name: 'Terça' }, { label: 'Q', name: 'Quarta' },
+            { label: 'Q', name: 'Quinta' }, { label: 'S', name: 'Sexta' }, { label: 'S', name: 'Sábado' },
+            { label: 'D', name: 'Domingo' }
+        ];
+
+        // Group topics into weeks (4 per week)
+        const weeks = [];
+        for (let i = 0; i < topics.length; i += 4) {
+            weeks.push(topics.slice(i, i + 4));
+        }
+
+        // State Management
+        let state = {
+            revisions: {}, // "weekIdx-topicIdx": boolean
+            classesText: {}, // "weekIdx-classIdx": string
+            classesDone: {}, // "weekIdx-classIdx": boolean
+            shifts: {} // "weekIdx-dayIdx": boolean
+        };
+
+        const STORAGE_KEY = 'cronograma_sesdf_state_v2';
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // Chaves "semana-indice" (semana começa em 0). O JSON guarda só o progresso.
+
+        const SERVER_ORIGIN = 'http://127.0.0.1:8765';
+        let serverReady = false;
+        let writeTimer = null;
+        let writeChain = Promise.resolve();
+
+        function apiUrl(path) {
+            if (location.protocol === 'http:' || location.protocol === 'https:') return path;
+            return SERVER_ORIGIN + path;
+        }
+
+        function isPlainObject(value) {
+            return !!value && typeof value === 'object' && !Array.isArray(value);
+        }
+
+        function normalizeState(loaded) {
+            const source = isPlainObject(loaded) ? loaded : {};
+            return {
+                revisions: isPlainObject(source.revisions) ? source.revisions : {},
+                classesText: isPlainObject(source.classesText) ? source.classesText : {},
+                classesDone: isPlainObject(source.classesDone) ? source.classesDone : {},
+                shifts: isPlainObject(source.shifts) ? source.shifts : {}
+            };
+        }
+
+        function isBlankState(value) {
+            return ['revisions', 'classesText', 'classesDone', 'shifts']
+                .every((name) => Object.keys(value[name]).length === 0);
+        }
+
+        function hasProgress(value) {
+            return ['revisions', 'classesText', 'classesDone', 'shifts'].some((name) =>
+                Object.keys(value[name]).some((key) => value[name][key])
+            );
+        }
+
+        function snapshot() {
+            return {
+                revisions: state.revisions || {},
+                classesText: state.classesText || {},
+                classesDone: state.classesDone || {},
+                shifts: state.shifts || {}
+            };
+        }
+
+        function readLocalState() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (!saved) return null;
+            try {
+                const parsed = JSON.parse(saved);
+                if (!parsed || typeof parsed !== 'object' || !('revisions' in parsed)) return null;
+                return normalizeState(parsed);
+            } catch (e) {
+                console.error('Erro ao ler a cópia do navegador', e);
+                return null;
+            }
+        }
+
+        function persistLocal() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot()));
+        }
+
+        function saveState() {
+            persistLocal();
+            updateProgressBar();
+            scheduleServerWrite();
+        }
+
+        function fetchTimeout(url, options, ms) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), ms);
+            return fetch(url, Object.assign({}, options, { signal: controller.signal }))
+                .finally(() => clearTimeout(timer));
+        }
+
+        function setFileStatus(text, color) {
+            document.getElementById('file-status').innerText = text;
+            const dot = document.getElementById('file-dot');
+            dot.className = 'w-2.5 h-2.5 rounded-full shrink-0 ' + color;
+        }
+
+        async function writeServerNow() {
+            if (!serverReady) return;
+            const saveTime = Date.now();
+            const res = await fetch(apiUrl('/api/estado'), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Save-Time': String(saveTime)
+                },
+                body: JSON.stringify(snapshot(), null, 2)
+            });
+            if (res.status === 409) return;
+            if (!res.ok) throw new Error('Não foi possível gravar o arquivo');
+            const hora = new Date(saveTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            setFileStatus('Salvo em dados/cronograma.json às ' + hora, 'bg-green-400');
+        }
+
+        function scheduleServerWrite() {
+            if (!serverReady) return;
+            clearTimeout(writeTimer);
+            setFileStatus('Salvando…', 'bg-yellow-300');
+            writeTimer = setTimeout(() => {
+                writeChain = writeChain.then(() => writeServerNow()).catch((err) => {
+                    console.error('Erro ao salvar no arquivo', err);
+                    setFileStatus('Não consegui gravar em dados/cronograma.json. Seus dados continuam neste navegador.', 'bg-red-400');
+                });
+            }, 600);
+        }
+
+        function flushServerWrite() {
+            if (!serverReady) return;
+            clearTimeout(writeTimer);
+            const saveTime = Date.now();
+            fetch(apiUrl('/api/estado'), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Save-Time': String(saveTime)
+                },
+                body: JSON.stringify(snapshot(), null, 2),
+                keepalive: true
+            }).catch(() => {});
+        }
+
+        window.addEventListener('pagehide', flushServerWrite);
+
+        async function initPersistence() {
+            const local = readLocalState();
+            try {
+                const res = await fetchTimeout(apiUrl('/api/estado'), { cache: 'no-store' }, 2000);
+                if (res.status === 500) {
+                    serverReady = false;
+                    if (local) state = local;
+                    setFileStatus('O arquivo dados/cronograma.json não pôde ser lido. O progresso desta tela está só neste navegador.', 'bg-red-400');
+                } else if (!res.ok) {
+                    throw new Error('resposta ' + res.status);
+                } else {
+                    const remote = normalizeState(await res.json());
+                    serverReady = true;
+                    if (isBlankState(remote) && local && hasProgress(local)) {
+                        state = local;
+                        persistLocal();
+                        try {
+                            await writeServerNow();
+                        } catch (err) {
+                            console.error(err);
+                            setFileStatus('Não consegui copiar o progresso para dados/cronograma.json. Ele continua neste navegador.', 'bg-red-400');
+                        }
+                    } else {
+                        state = remote;
+                        persistLocal();
+                        setFileStatus('Conectado a dados/cronograma.json', 'bg-green-400');
+                    }
+                }
+            } catch (e) {
+                serverReady = false;
+                if (local) state = local;
+                setFileStatus('Abra pelo Iniciar.bat para salvar em arquivo. Por enquanto, só neste navegador.', 'bg-orange-300');
+            }
+            renderWeeks();
+            updateProgressBar();
+        }
+
+        // --- Render Engine ---
+
+        function renderWeeks() {
+            const container = document.getElementById('weeks-container');
+            container.innerHTML = '';
+
+            weeks.forEach((weekTopics, weekIdx) => {
+                // Revisions HTML
+                const revisionsHtml = weekTopics.map((topic, topicIdx) => {
+                    const key = `${weekIdx}-${topicIdx}`;
+                    const isChecked = state.revisions[key] ? 'checked' : '';
+                    return `
+                        <label class="flex items-start cursor-pointer group mt-2">
+                            <input type="checkbox" ${isChecked} onchange="toggleRevision(${weekIdx}, ${topicIdx}, this.checked)" class="checkbox-custom mt-0.5 shrink-0">
+                            <span class="ml-3 text-sm font-medium text-slate-700 topic-text break-words leading-tight pt-0.5">${topic}</span>
+                        </label>
+                    `;
+                }).join('');
+
+                // New Classes HTML (Always 4 inputs)
+                let classesHtml = '';
+                for (let i = 0; i < 4; i++) {
+                    const key = `${weekIdx}-${i}`;
+                    const text = state.classesText[key] || '';
+                    const isChecked = state.classesDone[key] ? 'checked' : '';
+                    classesHtml += `
+                        <div class="flex items-center gap-2 mt-2">
+                            <input type="checkbox" ${isChecked} onchange="toggleClassDone(${weekIdx}, ${i}, this.checked)" class="checkbox-custom shrink-0">
+                            <input type="text" placeholder="Aula ${i+1}..." value="${escapeHtml(text)}" oninput="updateClassText(${weekIdx}, ${i}, this.value)" onchange="updateClassText(${weekIdx}, ${i}, this.value)" class="flex-1 text-sm bg-transparent border-b border-slate-200 focus:border-medical-500 focus:outline-none py-1 px-1 text-slate-700 transition-colors placeholder:text-slate-300">
+                        </div>
+                    `;
+                }
+
+                // Shifts HTML
+                const shiftsHtml = daysOfWeek.map((day, dayIdx) => {
+                    const key = `${weekIdx}-${dayIdx}`;
+                    const isActive = state.shifts[key] ? 'active' : '';
+                    return `
+                        <button onclick="toggleShift(this, ${weekIdx}, ${dayIdx})" title="Marcar plantão na ${day.name}" class="day-btn ${isActive} w-7 h-7 rounded-full border border-slate-200 text-xs text-slate-400 bg-white flex items-center justify-center hover:border-orange-300 hover:text-orange-500 focus:outline-none">
+                            ${day.label}
+                        </button>
+                    `;
+                }).join('');
+
+                // Week Card Assembly
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow";
+                card.innerHTML = `
+                    <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex justify-between items-center">
+                        <h2 class="font-bold text-slate-800 text-lg">Semana ${weekIdx + 1}</h2>
+                        <span class="text-xs font-semibold text-medical-600 bg-medical-50 px-2 py-1 rounded-md border border-medical-100">
+                            ${weekTopics.length} Temas
+                        </span>
+                    </div>
+                    
+                    <div class="p-5 flex-1 flex flex-col gap-5">
+                        <!-- Revisões -->
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fas fa-sync-alt text-medical-500"></i> Revisões da Semana</h3>
+                            <div class="flex flex-col gap-1">
+                                ${revisionsHtml}
+                            </div>
+                        </div>
+
+                        <!-- Aulas Novas -->
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fas fa-book-open text-blue-500"></i> Aulas Novas (Meta: 4)</h3>
+                            <div class="flex flex-col gap-1">
+                                ${classesHtml}
+                            </div>
+                        </div>
+
+                        <!-- Plantões -->
+                        <div class="mt-auto pt-4 border-t border-slate-100">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fas fa-hospital text-orange-500"></i> Plantões / Dias Pesados</h3>
+                            <div class="flex justify-between mt-2 gap-1">
+                                ${shiftsHtml}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 px-5 py-3 border-t border-slate-100 text-[11px] text-slate-400 text-center flex items-center justify-center gap-2">
+                        <i class="fas fa-lightbulb text-yellow-400"></i>
+                        <span>Dica: Passe o olho no Notion e zere os cloze deletions no Anki.</span>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // --- Interaction Handlers ---
+
+        function toggleRevision(weekIdx, topicIdx, checked) {
+            const key = `${weekIdx}-${topicIdx}`;
+            state.revisions[key] = checked;
+            saveState();
+        }
+
+        function updateClassText(weekIdx, classIdx, text) {
+            const key = `${weekIdx}-${classIdx}`;
+            state.classesText[key] = text;
+            saveState();
+        }
+
+        function toggleClassDone(weekIdx, classIdx, checked) {
+            const key = `${weekIdx}-${classIdx}`;
+            state.classesDone[key] = checked;
+            saveState();
+        }
+
+        function toggleShift(btn, weekIdx, dayIdx) {
+            const key = `${weekIdx}-${dayIdx}`;
+            state.shifts[key] = !state.shifts[key];
+            
+            if (state.shifts[key]) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+            saveState();
+        }
+
+        function updateProgressBar() {
+            const total = topics.length;
+            let completed = 0;
+            
+            // Count checked revisions
+            for (const key in state.revisions) {
+                if (state.revisions[key]) completed++;
+            }
+
+            const percentage = (completed / total) * 100;
+            
+            document.getElementById('progress-text').innerText = `${completed} / ${total}`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            
+            // Add a little glow when 100%
+            if (completed === total) {
+                document.getElementById('progress-bar').classList.add('bg-green-400', 'shadow-[0_0_10px_#4ade80]');
+                document.getElementById('progress-bar').classList.remove('bg-medical-100');
+            } else {
+                document.getElementById('progress-bar').classList.remove('bg-green-400', 'shadow-[0_0_10px_#4ade80]');
+                document.getElementById('progress-bar').classList.add('bg-medical-100');
+            }
+        }
+
+        // --- Init ---
+        navigator.storage?.persist?.();   // pede ao navegador para não descartar a cópia local
+        initPersistence();
+
+    </script>
+</body>
+</html>
